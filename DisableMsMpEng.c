@@ -3,6 +3,8 @@
 #include <strsafe.h>
 #include <conio.h>
 
+#define _ACCESS_DENIED_ "\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n"
+
 
 DWORD TypeParametr = 0;
 HKEY AntiMalware_Dir = 0;
@@ -11,15 +13,8 @@ int Check_KeyWindowsDefender(const char *KeyName, DWORD ValueSet) {
 	DWORD SizeValue = sizeof(DWORD);
 	DWORD ValueParametr = 0;
 	
-	LONG CodeRead = RegGetValue(AntiMalware_Dir, 0, KeyName, RRF_RT_REG_DWORD, &TypeParametr, &ValueParametr, &SizeValue);
-	
-	printf("\r\n\r\n");
-	if (! CodeRead) {
-		printf("[Value %s : %ld]\r\n", KeyName, ValueParametr);
-			
-		LSTATUS KeyName_SetValue = RegSetKeyValueA(AntiMalware_Dir, 0, KeyName, REG_DWORD, &ValueSet, SizeValue);
-		
-		switch (KeyName_SetValue) {
+	if (! RegGetValue(AntiMalware_Dir, 0, KeyName, RRF_RT_REG_DWORD, &TypeParametr, &ValueParametr, &SizeValue)) {
+		switch (RegSetKeyValueA(AntiMalware_Dir, 0, KeyName, REG_DWORD, &ValueSet, SizeValue)) {
 			case 5:
 				return 5;
 					
@@ -30,13 +25,14 @@ int Check_KeyWindowsDefender(const char *KeyName, DWORD ValueSet) {
 	}
 	
 	else {
-		LSTATUS _Create_KeyWin = RegSetValueEx(AntiMalware_Dir, KeyName, 0, REG_DWORD, (const BYTE *) &ValueSet, SizeValue);
-		
-		if (_Create_KeyWin == ERROR_SUCCESS) {
+		if (RegSetValueEx(AntiMalware_Dir, KeyName, 0, REG_DWORD, (const BYTE *) &ValueSet, SizeValue) == ERROR_SUCCESS) {
 			printf("[Create %s : %ld]\r\n", KeyName, ValueSet);
+			return 1;
 		}
 		
-		return 1;
+		else {
+			return 0;
+		}
 	}
 	
 	return 0;
@@ -53,17 +49,17 @@ int main(void) {
 		printf("[Opened SOFTWARE\\Policies\\Microsoft\\Windows Defender]\r\n");
 		
 		if (Check_KeyWindowsDefender("AllowFastServiceStartup\0", 0) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 			return 5;
 		}
 		
 		if (Check_KeyWindowsDefender("ServiceKeepAlive\0", 0) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 			return 5;
 		}
 		
 		if (Check_KeyWindowsDefender("DisableAntiSpyware\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 			return 5;
 		}
 		
@@ -99,23 +95,23 @@ int main(void) {
 		printf("[Opened HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection]\r\n");
 		
 		if (Check_KeyWindowsDefender("DisableOAVProtection\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 		
 		if (Check_KeyWindowsDefender("DisableRealtimeMonitoring\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 		
 		if (Check_KeyWindowsDefender("DisableBehaviorMonitoring\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 		
 		if (Check_KeyWindowsDefender("DisableOnAccessProtection\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 		
 		if (Check_KeyWindowsDefender("DisableScanOnRealtimeProtection\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 	}
 	
@@ -154,15 +150,15 @@ int main(void) {
 		printf("[Opened HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet]\r\n");
 		
 		if (Check_KeyWindowsDefender("DisableBlockAtFirstSeen\0", 1) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 		
 		if (Check_KeyWindowsDefender("LocalSettingOverrideSpynetReporting\0", 0) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 		
 		if (Check_KeyWindowsDefender("SubmitSamplesConsent\0", 2) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 	}
 	
@@ -174,7 +170,7 @@ int main(void) {
 		printf("\r\n[Opened SYSTEM\\CurrentControlSet\\Services\\WinDefend]\r\n");
 		
 		if (Check_KeyWindowsDefender("Start\0", 4) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 	}
 	
@@ -186,7 +182,7 @@ int main(void) {
 		printf("\r\n[Opened SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc]\r\n");
 		
 		if (Check_KeyWindowsDefender("Start\0", 4) == 5) {
-			printf("\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n");
+			printf(_ACCESS_DENIED_);
 		}
 	}
 	
