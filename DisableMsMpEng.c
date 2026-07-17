@@ -1,189 +1,164 @@
 #include <stdio.h>
-#include <Windows.h>
-#include <strsafe.h>
+#include <windows.h>
+#include <string.h>
 #include <conio.h>
 
 #define _ACCESS_DENIED_ "\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n"
 
-
-DWORD TypeParametr = 0;
-HKEY AntiMalware_Dir = 0;
-
-int Check_KeyWindowsDefender(const char *KeyName, DWORD ValueSet) {
-	DWORD SizeValue = sizeof(DWORD);
-	DWORD ValueParametr = 0;
+LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
+	HKEY key_regedit;
 	
-	if (! RegGetValue(AntiMalware_Dir, 0, KeyName, RRF_RT_REG_DWORD, &TypeParametr, &ValueParametr, &SizeValue)) {
-		switch (RegSetKeyValueA(AntiMalware_Dir, 0, KeyName, REG_DWORD, &ValueSet, SizeValue)) {
-			case 5:
-				return 5;
-					
-			case 0:
-				printf("[Set value %s : %ld]\r\n", KeyName, ValueSet);
-				return 1;
-		}
+	size_t length_str_key_path = strlen(key_name);
+	
+	if (strstr(key_name, "HKEY_CURRENT_USER") == NULL) {
+		key_regedit = HKEY_CURRENT_USER;
 	}
 	
-	else {
-		if (RegSetValueEx(AntiMalware_Dir, KeyName, 0, REG_DWORD, (const BYTE *) &ValueSet, SizeValue) == ERROR_SUCCESS) {
-			printf("[Create %s : %ld]\r\n", KeyName, ValueSet);
-			return 1;
-		}
-		
-		else {
-			return 0;
-		}
+	else if (strstr(key_name, "HKEY_LOCAL_MACHINE") == NULL) {
+		key_regedit = HKEY_LOCAL_MACHINE;
 	}
 	
-	return 0;
+	else if (strstr(key_name, "HKEY_CLASSES_ROOT") == NULL) {
+		key_regedit = HKEY_CLASSES_ROOT;
+	}
+	
+	else if (strstr(key_name, "HKEY_USERS") == NULL) {
+		key_regedit = HKEY_USERS;
+	}
+	
+	char temp_path[256] = {0};
+	char temp_name_key[256] = {0};
+	
+	memset(temp_path, 0, 256);
+	memset(temp_name_key, 0, 256);
+	
+	for (; key_name[length_str_key_path] != '\\'; --length_str_key_path);
+	
+	strncpy(temp_path, key_name, length_str_key_path);
+	strcpy(temp_name_key, key_name + length_str_key_path);
+	
+	return RegSetKeyValue(key_regedit, temp_path, temp_name_key, REG_DWORD, &value_set, sizeof(DWORD));
 }
+
+
 
 
 int main(void) {
 	system("color a");
 	system("cls");
 	
-	LONG DescMalware = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Policies\\Microsoft\\Windows Defender\0", 0, KEY_ALL_ACCESS, &AntiMalware_Dir);
-	
-	if (DescMalware == ERROR_SUCCESS) {
-		printf("[Opened SOFTWARE\\Policies\\Microsoft\\Windows Defender]\r\n");
-		
-		if (Check_KeyWindowsDefender("AllowFastServiceStartup\0", 0) == 5) {
-			printf(_ACCESS_DENIED_);
-			return 5;
-		}
-		
-		if (Check_KeyWindowsDefender("ServiceKeepAlive\0", 0) == 5) {
-			printf(_ACCESS_DENIED_);
-			return 5;
-		}
-		
-		if (Check_KeyWindowsDefender("DisableAntiSpyware\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-			return 5;
-		}
-		
-	}
-	
-	else {
-		printf("[ERROR OPENED SOFTWARE\\Policies\\Microsoft\\Windows Defender\r\n");
-		return 1;
-	}
-	
-	
-	
-	HKEY MalwareOther_SUB = 0;
-	
-	LSTATUS _DescMalware = RegCreateKeyEx(AntiMalware_Dir, "Real-Time Protection\0", 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE | KEY_ALL_ACCESS, 0, &MalwareOther_SUB, 0);
-	if (_DescMalware == ERROR_SUCCESS) {
-		printf("\r\n[Create Real-Time Protection dir]\r\n");
-	}
-	
-	else {
-		printf("\r\n[ERROR CREATE REAL-TIME PROTECTION DIR]\r\n");
+	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\AllowFastServiceStartup]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\AllowFastServiceStartup\0", 0) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
 		getch();
 		
-		return 1;
+		return 5;
 	}
 	
-	RegCloseKey(MalwareOther_SUB);
-	RegCloseKey(AntiMalware_Dir);
-	
-	DescMalware = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\0", 0, KEY_ALL_ACCESS, &AntiMalware_Dir);
-	
-	if (DescMalware == ERROR_SUCCESS) {
-		printf("[Opened HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection]\r\n");
+	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\ServiceKeepAlive]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\ServiceKeepAlive\0", 0) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
 		
-		if (Check_KeyWindowsDefender("DisableOAVProtection\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
-		
-		if (Check_KeyWindowsDefender("DisableRealtimeMonitoring\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
-		
-		if (Check_KeyWindowsDefender("DisableBehaviorMonitoring\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
-		
-		if (Check_KeyWindowsDefender("DisableOnAccessProtection\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
-		
-		if (Check_KeyWindowsDefender("DisableScanOnRealtimeProtection\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
+		return 5;
 	}
 	
-	else {
-		printf("[ERROR OPENED HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection]\r\n\r\n");
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
 	}
 	
-	RegCloseKey(MalwareOther_SUB);
-	RegCloseKey(AntiMalware_Dir);
 	
 	
-	
-	
-	LONG StartSUB_Malware = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Policies\\Microsoft\\Windows Defender\0", 0, KEY_ALL_ACCESS, &AntiMalware_Dir);
-	
-	if (StartSUB_Malware == ERROR_SUCCESS) {
-		DescMalware = RegCreateKeyEx(AntiMalware_Dir, "Spynet\0", 0, 0, REG_OPTION_NON_VOLATILE, KEY_WRITE | KEY_ALL_ACCESS, 0, &MalwareOther_SUB, 0);
-		if (DescMalware == ERROR_SUCCESS) {
-			printf("\r\n[Create Spynet dir]\r\n");
-		}
-	
-		else {
-			printf("\r\n[ERROR CREATE SPYNET DIR]\r\n");
-			getch();
-			
-			return 1;
-		}
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOAVProtection]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOAVProtection\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
 	}
 	
-	RegCloseKey(MalwareOther_SUB);
-	RegCloseKey(AntiMalware_Dir);
-	
-	StartSUB_Malware = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\0", 0, KEY_ALL_ACCESS, &AntiMalware_Dir);
-	
-	if (StartSUB_Malware == ERROR_SUCCESS) {
-		printf("[Opened HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet]\r\n");
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableRealtimeMonitoring]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableRealtimeMonitoring\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
 		
-		if (Check_KeyWindowsDefender("DisableBlockAtFirstSeen\0", 1) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
-		
-		if (Check_KeyWindowsDefender("LocalSettingOverrideSpynetReporting\0", 0) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
-		
-		if (Check_KeyWindowsDefender("SubmitSamplesConsent\0", 2) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
+		return 5;
 	}
 	
-	RegCloseKey(AntiMalware_Dir);
-	
-	DescMalware = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Services\\WinDefend\0", 0, KEY_ALL_ACCESS, &AntiMalware_Dir);
-	
-	if (DescMalware == ERROR_SUCCESS) {
-		printf("\r\n[Opened SYSTEM\\CurrentControlSet\\Services\\WinDefend]\r\n");
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableBehaviorMonitoring]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableBehaviorMonitoring\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
 		
-		if (Check_KeyWindowsDefender("Start\0", 4) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
+		return 5;
 	}
 	
-	RegCloseKey(AntiMalware_Dir);
-	
-	DescMalware = RegOpenKeyEx(HKEY_LOCAL_MACHINE, "SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\0", 0, KEY_ALL_ACCESS, &AntiMalware_Dir);
-	
-	if (DescMalware == ERROR_SUCCESS) {
-		printf("\r\n[Opened SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc]\r\n");
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOnAccessProtection]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOnAccessProtection\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
 		
-		if (Check_KeyWindowsDefender("Start\0", 4) == 5) {
-			printf(_ACCESS_DENIED_);
-		}
+		return 5;
+	}
+	
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableScanOnRealtimeProtection]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableScanOnRealtimeProtection\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\DisableBlockAtFirstSeen]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\DisableBlockAtFirstSeen\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\LocalSettingOverrideSpynetReporting]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\LocalSettingOverrideSpynetReporting\0", 0) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 2 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\SubmitSamplesConsent]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\SubmitSamplesConsent\0", 2) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 4 HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start\0", 4) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 4 HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\\Start]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start\0", 4) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 4 HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation]\r\n");
+	if (vault_createkey_dword("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
 	}
 	
 	
