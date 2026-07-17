@@ -3,7 +3,7 @@
 #include <string.h>
 #include <conio.h>
 
-#define _ACCESS_DENIED_ "\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n"
+#define _ACCESS_DENIED_ "[ADMIN PRIVILEGES REQUIRED!!!]\r\n\r\n----------------------------------------------------\r\n[[ACCESS_DENIED]]\r\n----------------------------------------------------\r\n"
 
 LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
 	HKEY key_regedit;
