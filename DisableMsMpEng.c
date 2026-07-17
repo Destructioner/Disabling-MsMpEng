@@ -43,7 +43,6 @@ LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
 	
 	strcpy(temp_name_key, key_name + length_str_key_path);
 	
-	printf("\r\n%s\r\n%s%ld\r\n\r\n", temp_path, temp_name_key, RegSetKeyValue(key_regedit, temp_path, temp_name_key, REG_DWORD, &value_set, sizeof(DWORD)));
 	return RegSetKeyValue(key_regedit, temp_path, temp_name_key, REG_DWORD, &value_set, sizeof(DWORD));
 }
 
