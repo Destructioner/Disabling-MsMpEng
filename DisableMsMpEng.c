@@ -43,6 +43,7 @@ LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
 	
 	strcpy(temp_name_key, key_name + length_str_key_path);
 	
+
 	return RegSetKeyValue(key_regedit, temp_path, temp_name_key, REG_DWORD, &value_set, sizeof(DWORD));
 }
 
@@ -152,7 +153,7 @@ int main(void) {
 	}
 	
 	printf("[Set value 4 HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\\Start]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start\0", 4) == ERROR_ACCESS_DENIED) {
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\\Start\0", 4) == ERROR_ACCESS_DENIED) {
 		printf(_ACCESS_DENIED_);
 		getch();
 		
