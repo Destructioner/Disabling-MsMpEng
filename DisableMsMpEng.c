@@ -9,20 +9,24 @@ LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
 	HKEY key_regedit;
 	
 	size_t length_str_key_path = strlen(key_name);
+	size_t length_str_key = 0;
 	
-	if (strstr(key_name, "HKEY_CURRENT_USER") == NULL) {
+	for (; key_name[length_str_key] != '\\'; ++length_str_key);
+	++length_str_key;
+	
+	if (strstr(key_name, "HKEY_CURRENT_USER") != NULL) {
 		key_regedit = HKEY_CURRENT_USER;
 	}
 	
-	else if (strstr(key_name, "HKEY_LOCAL_MACHINE") == NULL) {
+	else if (strstr(key_name, "HKEY_LOCAL_MACHINE") != NULL) {
 		key_regedit = HKEY_LOCAL_MACHINE;
 	}
 	
-	else if (strstr(key_name, "HKEY_CLASSES_ROOT") == NULL) {
+	else if (strstr(key_name, "HKEY_CLASSES_ROOT") != NULL) {
 		key_regedit = HKEY_CLASSES_ROOT;
 	}
 	
-	else if (strstr(key_name, "HKEY_USERS") == NULL) {
+	else if (strstr(key_name, "HKEY_USERS") != NULL) {
 		key_regedit = HKEY_USERS;
 	}
 	
@@ -34,9 +38,12 @@ LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
 	
 	for (; key_name[length_str_key_path] != '\\'; --length_str_key_path);
 	
-	strncpy(temp_path, key_name, length_str_key_path);
+	strncpy(temp_path, key_name + length_str_key, length_str_key_path - length_str_key);
+	++length_str_key_path;
+	
 	strcpy(temp_name_key, key_name + length_str_key_path);
 	
+	printf("\r\n%s\r\n%s%ld\r\n\r\n", temp_path, temp_name_key, RegSetKeyValue(key_regedit, temp_path, temp_name_key, REG_DWORD, &value_set, sizeof(DWORD)));
 	return RegSetKeyValue(key_regedit, temp_path, temp_name_key, REG_DWORD, &value_set, sizeof(DWORD));
 }
 
@@ -153,8 +160,16 @@ int main(void) {
 		return 5;
 	}
 	
-	printf("[Set value 4 HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation]\r\n");
+	printf("[Set value 1 HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation]\r\n");
 	if (vault_createkey_dword("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation\0", 1) == ERROR_ACCESS_DENIED) {
+		printf(_ACCESS_DENIED_);
+		getch();
+		
+		return 5;
+	}
+	
+	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\EnableSmartScreen]\r\n");
+	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\EnableSmartScreen\0", 0) == ERROR_ACCESS_DENIED) {
 		printf(_ACCESS_DENIED_);
 		getch();
 		
