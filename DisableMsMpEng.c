@@ -49,131 +49,22 @@ LSTATUS vault_createkey_dword(const char *key_name, DWORD value_set) {
 
 
 
+const char *regedit_params[] = {"HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\AllowFastServiceStartup\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\ServiceKeepAlive\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOAVProtection\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableRealtimeMonitoring\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableBehaviorMonitoring\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOnAccessProtection\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableScanOnRealtimeProtection\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\DisableBlockAtFirstSeen\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\LocalSettingOverrideSpynetReporting\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\SubmitSamplesConsent\0", "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start\0", "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\\Start\0", "HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation\0", "HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\EnableSmartScreen\0"};
+DWORD value_param[] = {0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 2, 4, 4, 1, 0};
 
 int main(void) {
 	system("color a");
 	system("cls");
 	
-	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\AllowFastServiceStartup]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\AllowFastServiceStartup\0", 0) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
+	size_t size_params = sizeof(regedit_params) / sizeof(*regedit_params);
+	
+	for (size_t iter_param = 0; iter_param < size_params; ++iter_param) {
+		printf("[Set value %ld %s]\r\n", value_param[iter_param], regedit_params[iter_param]);
 		
-		return 5;
-	}
-	
-	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\ServiceKeepAlive]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\ServiceKeepAlive\0", 0) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\DisableAntiSpyware\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOAVProtection]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOAVProtection\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableRealtimeMonitoring]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableRealtimeMonitoring\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableBehaviorMonitoring]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableBehaviorMonitoring\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOnAccessProtection]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableOnAccessProtection\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableScanOnRealtimeProtection]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Real-Time Protection\\DisableScanOnRealtimeProtection\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\DisableBlockAtFirstSeen]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\DisableBlockAtFirstSeen\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\LocalSettingOverrideSpynetReporting]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\LocalSettingOverrideSpynetReporting\0", 0) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 2 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\SubmitSamplesConsent]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows Defender\\Spynet\\SubmitSamplesConsent\0", 2) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 4 HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\WinDefend\\Start\0", 4) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 4 HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\\Start]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Services\\MDCoreSvc\\Start\0", 4) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 1 HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation]\r\n");
-	if (vault_createkey_dword("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Attachments\\SaveZoneInformation\0", 1) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
-	}
-	
-	printf("[Set value 0 HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\EnableSmartScreen]\r\n");
-	if (vault_createkey_dword("HKEY_LOCAL_MACHINE\\SOFTWARE\\Policies\\Microsoft\\Windows\\System\\EnableSmartScreen\0", 0) == ERROR_ACCESS_DENIED) {
-		printf(_ACCESS_DENIED_);
-		getch();
-		
-		return 5;
+		if (vault_createkey_dword(regedit_params[iter_param], value_param[iter_param]) == ERROR_ACCESS_DENIED) {
+			printf(_ACCESS_DENIED_);
+			getch();
+		}
 	}
 	
 	
