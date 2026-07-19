@@ -64,6 +64,8 @@ int main(void) {
 		if (vault_createkey_dword(regedit_params[iter_param], value_param[iter_param]) == ERROR_ACCESS_DENIED) {
 			printf(_ACCESS_DENIED_);
 			getch();
+
+			return 5;
 		}
 	}
 	
